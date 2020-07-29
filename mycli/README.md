@@ -23,3 +23,23 @@ $ docker run \
 mycli \
 mycli -h $host --port $port -u$username -p$password $database
 ```
+
+### Notes
+
+This image uses mycli 1.10.0. More recent versions of mycli return query results slowly in Docker. For example:
+
+```mysql
+> SELECT *
+FROM table
+LIMIT 10
+```
+
+| Client | Timing |
+| --- | --- |
+| mysql 5.7 | 0.03 s |
+| mycli 1.10.0 | 0.03 s |
+| mycli 1.21.1 | 2.50 s |
+
+As best I can tell, mycli 1.10.0 is the latest version that closely matches standard MySQL's timing in Docker. It does seem like it's just a delay in displaying the results, not actually in running the query on the server. If you find an alternate solution, feel free to open an issue or a PR.
+
+Relatedly, pymysql version 0.9.2 is pinned to support mycli 1.10.0. Subsequent versions of pymysql [remove a function](https://github.com/PyMySQL/PyMySQL/commit/fe0cd60e6f9e3bc0fb81f76f7e4fa30a1e1b34cc#diff-40496cc4a0f4db6907de60f7ce470b95) that is needed in mycli 1.10.0.
